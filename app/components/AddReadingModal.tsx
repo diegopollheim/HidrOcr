@@ -1,7 +1,11 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { addReading, getLastReading } from "@lib/storage";
-import { digitsToLiters, formatCubicMetersFromLiters, formatLiters } from "@lib/units";
+import {
+  digitsToLiters,
+  formatCubicMetersFromLiters,
+  formatLiters,
+} from "@lib/units";
 import { extractReadingFromImage } from "@lib/ocrMock";
 
 type Props = {
@@ -60,19 +64,15 @@ export default function AddReadingModal({ isOpen, onClose, onAdded }: Props) {
       setPresent(true);
       requestAnimationFrame(() => setShow(true));
       if (navigator.geolocation) {
-        alert("Geolocalização disponível");
         navigator.geolocation.getCurrentPosition(
           (pos) => {
             setGeo({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-            alert("Geolocalização obtida: " + pos.coords.latitude + ", " + pos.coords.longitude);
           },
           () => {
             setGeo(undefined);
           },
           { enableHighAccuracy: true }
         );
-      } else {
-        alert("Geolocalização indisponível");
       }
     } else {
       setShow(false);
@@ -143,11 +143,30 @@ export default function AddReadingModal({ isOpen, onClose, onAdded }: Props) {
     }
   };
 
-  const allDigitsFilled = mode === "manual" && digits.every((d) => /\d/.test(d) && d.length === 1);
-  const manualValid = mode === "manual" && allDigitsFilled && Number.isFinite(Number(manualValue)) && Number(manualValue) > 0;
-  const ocrValid = mode === "ocr" && !processing && detectedValue !== null && Number.isFinite(detectedValue) && detectedValue > 0;
-  const candidateValue = mode === "manual" ? (manualValid ? Number(manualValue) : null) : (ocrValid ? detectedValue : null);
-  const canSave = candidateValue !== null && (!last || (candidateValue as number) > (last?.reading ?? 0));
+  const allDigitsFilled =
+    mode === "manual" && digits.every((d) => /\d/.test(d) && d.length === 1);
+  const manualValid =
+    mode === "manual" &&
+    allDigitsFilled &&
+    Number.isFinite(Number(manualValue)) &&
+    Number(manualValue) > 0;
+  const ocrValid =
+    mode === "ocr" &&
+    !processing &&
+    detectedValue !== null &&
+    Number.isFinite(detectedValue) &&
+    detectedValue > 0;
+  const candidateValue =
+    mode === "manual"
+      ? manualValid
+        ? Number(manualValue)
+        : null
+      : ocrValid
+      ? detectedValue
+      : null;
+  const canSave =
+    candidateValue !== null &&
+    (!last || (candidateValue as number) > (last?.reading ?? 0));
 
   const submit = () => {
     const value = candidateValue ?? 0;
@@ -310,7 +329,11 @@ export default function AddReadingModal({ isOpen, onClose, onAdded }: Props) {
               </div>
               <div
                 className="rounded-xl border-2 border-dashed border-water-light bg-water-gray/50 hover:bg-water-light transition p-8 text-center cursor-pointer flex flex-col items-center justify-center"
-                onClick={() => { setDigits(Array(6).fill("")); setManualValue(""); setMode("manual"); }}
+                onClick={() => {
+                  setDigits(Array(6).fill(""));
+                  setManualValue("");
+                  setMode("manual");
+                }}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
