@@ -2,6 +2,8 @@
 import { useState } from "react";
 import { getReadings, updateReading, deleteReading } from "@lib/storage";
 import { formatCubicMetersFromLiters, formatLiters } from "@lib/units";
+import { dayjs } from "@lib/date";
+import Link from "next/link";
 
 type Reading = {
   reading: number;
@@ -69,32 +71,24 @@ export default function ReadingList({ readings, onAdd, onChanged }: { readings: 
       {sorted.length === 0 && (
         <div className="text-slate-600">Nenhum registro ainda. Clique em "Adicionar leitura".</div>
       )}
-      {sorted.map((r, idx) => (
+      {sorted.slice(0, 5).map((r, idx) => (
         <div key={idx} className="card">
-          <div className="flex items-center justify-between">
+          <div className="flex items-start justify-between">
             <div>
               <div className="text-lg font-semibold text-water-blue">{formatCubicMetersFromLiters(r.reading)}</div>
-              <div className="text-sm text-slate-600">{new Date(r.timestamp).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}</div>
               {r.geo && (
                 <div className="text-xs text-slate-500">Lat: {r.geo.lat.toFixed(6)} | Lng: {r.geo.lng.toFixed(6)}</div>
               )}
               <div className="text-xs text-slate-500">{formatLiters(r.reading)}</div>
             </div>
-            <div className="flex gap-2">
-              <button aria-label="Editar" title="Editar" className="btn bg-slate-100" onClick={() => startEdit(r)}>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="w-5 h-5 text-slate-700">
-                  <rect x="4" y="4" width="16" height="16" rx="2" strokeWidth="1.5" />
-                  <path strokeWidth="1.5" d="M8 16l8-8" />
-                </svg>
-              </button>
-              <button aria-label="Excluir" title="Excluir" className="btn bg-red-100 text-red-700" onClick={() => remove(r)}>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="w-5 h-5">
-                  <path strokeWidth="1.5" d="M4 7h16" />
-                  <path strokeWidth="1.5" d="M10 7V5h4v2" />
-                  <path strokeWidth="1.5" d="M7 7v10a2 2 0 002 2h6a2 2 0 002-2V7" />
-                </svg>
-              </button>
+            <div className="text-right">
+              <div className="text-sm text-slate-600">{new Date(r.timestamp).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}</div>
+              <div className="text-xs text-slate-500">{dayjs(r.timestamp).fromNow()}</div>
             </div>
+          </div>
+          <div className="mt-3 flex justify-end gap-2">
+            <button aria-label="Editar" className="btn bg-slate-100" onClick={() => startEdit(r)}>Editar</button>
+            <button aria-label="Excluir" className="btn bg-red-100 text-red-700" onClick={() => remove(r)}>Excluir</button>
           </div>
           {editing === r.timestamp && (
             <div className="mt-3 flex items-center gap-2">
@@ -108,6 +102,11 @@ export default function ReadingList({ readings, onAdd, onChanged }: { readings: 
           )}
         </div>
       ))}
+      {sorted.length > 5 && (
+        <div>
+          <Link href="/registros" className="btn w-full">Ver mais</Link>
+        </div>
+      )}
       
     </div>
   );
